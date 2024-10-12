@@ -17,14 +17,24 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+        http
 //                .csrf(customizer -> customizer.disable())
                 // disabling csrf, else we need to pass csrf token for things like post, put, delete requests
 
-                .authorizeHttpRequests(customizer -> customizer.anyRequest().authenticated())
+                .authorizeHttpRequests(customizer -> customizer
+                        .requestMatchers("/images/**").permitAll() // Allow access to images
+                        .anyRequest().authenticated()
+                )
                 // to tell that all the endpoints are protected
 
-                .formLogin(Customizer.withDefaults())
+                .formLogin( customizer -> customizer
+                        .loginPage("/auth/login")
+                        // The controller method that renders the html page should have this endpoint of GET type
+                        // Further the same html login page should make a POST request to this same url in order to authenticate/login
+                        .defaultSuccessUrl("/passenger/home", true)
+                        .permitAll()
+                )
+//                .formLogin(Customizer.withDefaults())
                 // utilizes the default login page
 
                 .httpBasic(Customizer.withDefaults())
@@ -36,7 +46,16 @@ public class SecurityConfig {
                 // Clicking login after giving in the username and pass will change the session id.
                 // Removing formLogin will create a pop-up that will ask for the credentials.
                 // No issues through postman though.
-                .build();
+
+                .logout(out->out
+                        .logoutUrl("/logout") // Sets the URL that triggers the logout action.
+                        .logoutSuccessUrl("/auth/login?logout") // After logging out, users will be redirected to the login
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                );
+                return http.build();
     }
 
     @Bean
