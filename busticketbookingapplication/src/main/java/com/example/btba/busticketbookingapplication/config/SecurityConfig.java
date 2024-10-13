@@ -27,9 +27,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/images/**",
                                 "/favicon.ico",
-                                "/auth/login",
-                                "/auth/perform_login"
-//                                ,"/passenger/**"
+                                "/auth/**"
+                                ,"/passenger/**"
                         ).permitAll() // Allow access to above urls
                         .anyRequest().authenticated()
                 )
@@ -93,7 +92,7 @@ public class SecurityConfig {
         // Ones defined at the application.properties will not be overlooked.
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
         auth.setUserDetailsService(userDetailsService());
-//        auth.setPasswordEncoder(passwordEncoder());
+        auth.setPasswordEncoder(passwordEncoder());
         // When we are not using the password encoder.
         // The database should have a prefix {noop} for the password field.
         return auth;

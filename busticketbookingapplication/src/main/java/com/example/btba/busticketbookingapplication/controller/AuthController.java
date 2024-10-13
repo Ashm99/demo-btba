@@ -1,7 +1,10 @@
 package com.example.btba.busticketbookingapplication.controller;
 
+import com.example.btba.busticketbookingapplication.dto.PassengerDto;
+import com.example.btba.busticketbookingapplication.dto.SavePassengerDto;
 import com.example.btba.busticketbookingapplication.dto.UserCredentialDto;
 import com.example.btba.busticketbookingapplication.service.PassengerService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,5 +49,37 @@ public class AuthController {
         }
         System.out.println("Yes, authenticated. Redirecting to home.");
         return "redirect:/passenger/home";
+    }
+
+    /**
+     * A mvc method for the registration page
+     *
+     * @return the register view.
+     */
+    // http://localhost:8081/auth/register
+    @GetMapping(value = "/register")
+    public String registrationPage(Model model) {
+        System.out.println("Rendering registration page...");
+        model.addAttribute("newPassenger", new SavePassengerDto());
+        return "register";
+    }
+
+    /**
+     * A mvc method to save the new passenger
+     *
+     * @param newPassenger  Passenger data to be registered.
+     * @param model  Model interface object.
+     * @return Success or Error message on the same page based on the outcome.
+     */
+    @PostMapping(value = "/savePassenger") // Ashok@12345
+    public String SavePassenger(@Valid @ModelAttribute SavePassengerDto newPassenger, Model model ) {
+        System.out.println(newPassenger.toString());
+        try{
+            PassengerDto savedPassenger = passengerService.addPassenger(newPassenger);
+        } catch (RuntimeException e){
+            System.err.println(e.getMessage());
+            return "redirect:/auth/register?emailAlreadyExists";
+        }
+        return "redirect:/auth/register?success";
     }
 }
