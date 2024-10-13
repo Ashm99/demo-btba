@@ -2,11 +2,13 @@ package com.example.btba.busticketbookingapplication.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,11 +20,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-//                .csrf(customizer -> customizer.disable())
+                .csrf(customizer -> customizer.disable())
                 // disabling csrf, else we need to pass csrf token for things like post, put, delete requests
 
                 .authorizeHttpRequests(customizer -> customizer
-                        .requestMatchers("/images/**").permitAll() // Allow access to images
+                        .requestMatchers(
+                                "/images/**",
+                                "/favicon.ico",
+                                "/auth/login",
+                                "/auth/perform_login"
+//                                ,"/passenger/**"
+                        ).permitAll() // Allow access to above urls
                         .anyRequest().authenticated()
                 )
                 // to tell that all the endpoints are protected
@@ -31,16 +39,12 @@ public class SecurityConfig {
                         .loginPage("/auth/login")
                         // The controller method that renders the html page should have this endpoint of GET type
                         // Further the same html login page should make a POST request to this same url in order to authenticate/login
-                        .defaultSuccessUrl("/passenger/home", true)
                         .permitAll()
                 )
-//                .formLogin(Customizer.withDefaults())
-                // utilizes the default login page
-
-                .httpBasic(Customizer.withDefaults())
+//                .httpBasic(Customizer.withDefaults())
                 // for clients like postman which expect a json response instead of a website when directly giving the credentials
 
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 // creates a new session id everytime even when refreshed.
                 // So, login through a webpage is impossible unless the formlogin line is removed.
                 // Clicking login after giving in the username and pass will change the session id.
@@ -90,8 +94,12 @@ public class SecurityConfig {
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
         auth.setUserDetailsService(userDetailsService());
 //        auth.setPasswordEncoder(passwordEncoder());
-        // We are not using the password encoder.
-        // So, the database should have a prefix {noop} for the password field.
+        // When we are not using the password encoder.
+        // The database should have a prefix {noop} for the password field.
         return auth;
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+        return config.getAuthenticationManager();
     }
 }
