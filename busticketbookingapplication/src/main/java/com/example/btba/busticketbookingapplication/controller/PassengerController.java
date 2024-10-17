@@ -25,15 +25,8 @@ public class PassengerController {
     @GetMapping(value = "/home")
     public String goHome(Model model, Authentication authentication) {
         System.out.println("Rendering passenger homepage...");
-//        String passengerName = "";
-//        try{
-//            passengerName = passengerService.getUserFirstnameByUsername(authentication.getName());
-//        } catch(NoSuchElementException exception){
-//            String message = exception.getMessage();
-//
-//            model.addAttribute("message", message);
-//            return "error";
-//        }
+//        System.out.println("Getting passenger first name...");
+//        String passengerName = passengerService.getUserFirstnameByUsername(authentication.getName());
 //        model.addAttribute("passengerName", passengerName);
         return "home";
     }

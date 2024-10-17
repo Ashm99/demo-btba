@@ -14,8 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration // Telling my application that this is a configuration file to Spring not just security
-@EnableWebSecurity // Telling that I don't wanna go to the default Spring Security configuration. I want to configure here.
+@Configuration // Telling that this is a configuration file to Spring not just security
+@EnableWebSecurity // Telling not to go to the default Spring Security configuration. Configure here.
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,6 +29,7 @@ public class SecurityConfig {
                                 "/favicon.ico",
                                 "/auth/**"
                                 ,"/passenger/**"
+                                ,"/bus/**"
                         ).permitAll() // Allow access to above urls
                         .anyRequest().authenticated()
                 )

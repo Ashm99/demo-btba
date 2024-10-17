@@ -41,16 +41,34 @@
         <section>
           <div class="message">
             <h5 class="mb-3">
-              <!-- <strong
-                >Hi, <span th:text="${patientName}">patient</span>!</strong
-              > -->
+              <!-- <strong>Hi, <span th:text="${passengerName}">passenger</span>!</strong> -->
               <strong>Hi!</strong>
             </h5>
             <p>Welcome to the BTBA</p>
-            <p>
-              You can use this application to book bus tickets.
-            </p>
+            <p>You can use this application to book bus tickets.</p>
+            <p>Currently we provide below services:</p>
+            <ul>
+              <li>Chennai - Madurai</li>
+              <li>Chennai - Coimbatore</li>
+              <li>Chennai - Hyderabad</li>
+              <li>Madurai - bangalore</li>
+            </ul>
             <br />
+            <h5 class="mb-3">Search for Buses</h5>
+                    <form class="mb-4" action="#" th:action="@{/bus/search}" method="GET">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="from" placeholder="From" required />
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="to" placeholder="To" required />
+                            </div>
+                            <div class="col-md-4">
+                                <input id="date" type="date" class="form-control" name="date" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Search Buses</button>
+                    </form>
             <h5 class="mb-3">Profile</h5>
             <ul>
               <li>Leads to a page where you can view your profile.</li>
@@ -63,8 +81,89 @@
         <br />
       </div>
     </div>
-    <footer class="text-center">
-      <p>End of Page.</p>
+    <!-- <div class="scrollToTopWrapper hide">
+      <div class="scrollToTopButton" onclick="onClickScrollToTopHome()">
+        <img
+          class="scrollArrowImg"
+          src="../static/images/scroll-up.jpeg"
+          alt="scrollToTop"
+          style="width: 1.5rem; height: 1.5rem"
+        />
+      </div>
+    </div>
+    <script defer="">
+      function onClickScrollToTopHome() {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth",
+        });
+      }
+    </script> -->
+    <footer>
+      <div
+        class="social_section"
+        style="display: flex; justify-content: space-between"
+      >
+        <span class="footer_copyright_text"
+          >Ⓒ btw... Rights not reserved yet!</span
+        >
+        <div class="social" style="display: flex; gap: 1.5rem">
+          <a
+            class="social_icon"
+            href="#"
+            target="_blank"
+            style="cursor: pointer"
+          >
+            <img
+              src="/images/fb.jpeg"
+              alt="facebook"
+              style="width: 1.5rem; height: 1.5rem"
+            />
+          </a>
+          <a
+            class="social_icon"
+            href="#"
+            target="_blank"
+            style="cursor: pointer"
+          >
+            <img
+              src="/images/linkedin.jpeg"
+              alt="linkedin"
+              style="width: 1.5rem; height: 1.5rem"
+            />
+          </a>
+          <a
+            class="social_icon"
+            href="#"
+            target="_blank"
+            style="cursor: pointer"
+          >
+            <img
+              src="/images/twiter.jpeg"
+              alt="twitter"
+              style="width: 1.5rem; height: 1.5rem"
+            />
+          </a>
+          <a
+            class="social_icon"
+            href="#"
+            target="_blank"
+            style="cursor: pointer"
+          >
+            <img
+              src="/images/insta.jpeg"
+              alt="instagram"
+              style="width: 1.5rem; height: 1.5rem"
+            />
+          </a>
+        </div>
+      </div>
     </footer>
+    <script>
+      const today = new Date().toISOString().split('T')[0];
+      console.log(today + ' is today\'s date.');
+      document.getElementById('date').setAttribute('min', today);
+    </script>
   </body>
 </html>
