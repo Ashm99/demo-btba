@@ -9,7 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,16 +28,13 @@ public class BusController {
      */
     // http://localhost:8081/bus/search
     @GetMapping(value = "/search")
-    @ResponseBody
-    public List<BusDto> goHome(@RequestParam String from, @RequestParam String to, @RequestParam LocalDate date, Model model, Authentication authentication) {
-        System.out.println("Rendering bus search page...");
+    public String goHome(@RequestParam String from, @RequestParam String to, @RequestParam LocalDate date, Model model, Authentication authentication) {
+        System.out.println("Searching for buses from "+ from + " to " + to + "...");
         System.out.println(from);
         System.out.println(to);
         System.out.println(date);
-//        busService.getRouteBySourceAndDestination(from, to);
-        List<BusDto> fetchedBusList = busService.getBusesBetweenSourceAndDestination(from, to);
-        // returns a list of buses
-//        List<BusDto> buses = busService.getBusesByRoute(routeId);
-        return fetchedBusList;
+        List<BusDto> fetchedBusList = busService.getBusesBetweenSourceAndDestination(from, to); // returns a list of buses
+        model.addAttribute("busList", fetchedBusList);
+        return "bus-search/bus-search-result";
     }
 }

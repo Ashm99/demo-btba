@@ -26,7 +26,7 @@ public class BusServiceImpl implements BusService {
      *
      * @param source Source location,
      * @param destination Destination location.
-     * @return
+     * @return A list of buses running between given stops.
      */
     @Override
     public List<BusDto> getBusesBetweenSourceAndDestination(String source, String destination) {
@@ -36,8 +36,6 @@ public class BusServiceImpl implements BusService {
         System.out.println("Route ids: " + routeIds.toString());
         routeIds.forEach( id -> busList.addAll(busRepo.findByRouteId(id)));
         AtomicInteger i = new AtomicInteger(0);
-        busList.forEach(bus -> System.out.println());
-
         busList.forEach(bus -> {
             System.out.println("Bus "+ i.incrementAndGet() + ": " + bus);
             busDtoList.add(BusMapper.mapToBusDto(bus));

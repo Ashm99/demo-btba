@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @Controller
 @RequestMapping(value = "/passenger")
 @AllArgsConstructor
@@ -28,6 +30,17 @@ public class PassengerController {
 //        System.out.println("Getting passenger first name...");
 //        String passengerName = passengerService.getUserFirstnameByUsername(authentication.getName());
 //        model.addAttribute("passengerName", passengerName);
+//        List<String> routes = List.of(
+//                "Chennai - Madurai",
+//                "Chennai - Coimbatore",
+//                "Chennai - Hyderabad",
+//                "Madurai - bangalore"
+//        );
+        List<String> routes = passengerService.getAllRoutes();
+        model.addAttribute("routes", routes);
+//        List<String> locations = List.of("Chennai", "Madurai", "Coimbatore", "Hyderabad", "Bangalore");
+        List<String> locations = passengerService.getAllStops();
+        model.addAttribute("locations", locations);
         return "home";
     }
 
