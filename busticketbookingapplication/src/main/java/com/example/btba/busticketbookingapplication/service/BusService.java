@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface BusService {
     List<BusDto> getBusesBetweenSourceAndDestination(String source, String destination);
+
+    List<String> getAllRoutes();
+
+    List<String> getAllStops();
 }

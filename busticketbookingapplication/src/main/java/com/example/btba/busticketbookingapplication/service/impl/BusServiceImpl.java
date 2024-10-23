@@ -44,4 +44,34 @@ public class BusServiceImpl implements BusService {
         if(busDtoList.isEmpty()) System.out.println("No buses found.");
         return busDtoList;
     }
+
+    /**
+     * A Service method to get all the routes from the database.
+     *
+     * @return A list of all routes.
+     */
+    @Override
+    public List<String> getAllRoutes() {
+        List<String> routes = routeRepo.findDistinctRoutes();
+        if (routes.isEmpty()) {
+            System.out.println("No routes found from the database. Check if route table is empty.");
+            return List.of("None");
+        }
+        return routes;
+    }
+
+    /**
+     * A Service method to get all the stops from the database.
+     *
+     * @return A list of all stops.
+     */
+    @Override
+    public List<String> getAllStops() {
+        List<String> locations = stopRepo.findDistinctLocations();
+        if (locations.isEmpty()) {
+            System.out.println("No locations found from the database. Check if stop table is empty.");
+            return List.of("No locations found.");
+        }
+        return locations;
+    }
 }

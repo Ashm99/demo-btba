@@ -27,6 +27,9 @@ public class BusController {
      * @return Passenger home page or error page based on the outcome.
      */
     // http://localhost:8081/bus/search
+    // This api is hit by 2 forms in->
+    // 1. home.html
+    // 2. bus-search-result.html
     @GetMapping(value = "/search")
     public String goHome(@RequestParam String from, @RequestParam String to, @RequestParam LocalDate date, Model model, Authentication authentication) {
         System.out.println("Searching for buses from "+ from + " to " + to + "...");
@@ -35,6 +38,15 @@ public class BusController {
         System.out.println(date);
         List<BusDto> fetchedBusList = busService.getBusesBetweenSourceAndDestination(from, to); // returns a list of buses
         model.addAttribute("busList", fetchedBusList);
+        List<String> routes = busService.getAllRoutes();
+        model.addAttribute("routes", routes);
+        List<String> locations = busService.getAllStops();
+        model.addAttribute("locations", locations);
+
+        model.addAttribute("source", from);
+        model.addAttribute("destination", to);
+        model.addAttribute("date", date);
+
         return "bus-search/bus-search-result";
     }
 }
