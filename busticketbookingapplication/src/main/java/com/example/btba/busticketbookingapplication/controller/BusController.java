@@ -1,6 +1,6 @@
 package com.example.btba.busticketbookingapplication.controller;
 
-import com.example.btba.busticketbookingapplication.dto.BusDto;
+import com.example.btba.busticketbookingapplication.dto.BusTravelDto;
 import com.example.btba.busticketbookingapplication.service.BusService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -36,13 +36,17 @@ public class BusController {
         System.out.println(from);
         System.out.println(to);
         System.out.println(date);
-        List<BusDto> fetchedBusList = busService.getBusesBetweenSourceAndDestination(from, to); // returns a list of buses
-        model.addAttribute("busList", fetchedBusList);
-        List<String> routes = busService.getAllRoutes();
-        model.addAttribute("routes", routes);
-        List<String> locations = busService.getAllStops();
-        model.addAttribute("locations", locations);
+        List<BusTravelDto> fetchedBusList = busService.getBusesBetweenSourceAndDestination(from, to, date); // returns a list of buses
+        if(fetchedBusList.isEmpty()) {
+            model.addAttribute("busListIsEmpty", true);
+        } else {
+            model.addAttribute("busListIsEmpty", false);
+            model.addAttribute("busList", fetchedBusList);
+        }
 
+
+        model.addAttribute("routes", busService.getAllRoutes());
+        model.addAttribute("locations", busService.getAllStops());
         model.addAttribute("source", from);
         model.addAttribute("destination", to);
         model.addAttribute("date", date);

@@ -1,11 +1,12 @@
 package com.example.btba.busticketbookingapplication.service;
 
-import com.example.btba.busticketbookingapplication.dto.BusDto;
+import com.example.btba.busticketbookingapplication.dto.BusTravelDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface BusService {
-    List<BusDto> getBusesBetweenSourceAndDestination(String source, String destination);
+    List<BusTravelDto> getBusesBetweenSourceAndDestination(String passengerStartPoint, String passengerEndPoint, LocalDate travelDate);
 
     List<String> getAllRoutes();
 

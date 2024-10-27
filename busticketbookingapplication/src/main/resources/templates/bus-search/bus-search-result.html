@@ -143,9 +143,16 @@
                         </div>
                     </form>
                 </div>
-                <ul th:each="bus:${busList}">
-                    <li th:text="${bus}">Bus1</li>
-                </ul>
+
+                <div th:if="${busListIsEmpty}">
+                  <p><strong>No buses found in the selected route.</strong></p>
+                </div>
+                <div th:unless="${busListIsEmpty}">
+                    <ul th:each="bus:${busList}">
+                        <li th:text="${bus}">Bus1</li>
+                    </ul>
+                    <div></div>
+                </div>
             </section>
             <br />
         </div>
