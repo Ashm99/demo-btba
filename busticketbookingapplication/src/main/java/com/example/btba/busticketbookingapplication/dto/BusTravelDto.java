@@ -13,6 +13,7 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class BusTravelDto {
+    private Long busId;
     private String busName;
     private String busType;
     private int availableSeats;

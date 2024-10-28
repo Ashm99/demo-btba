@@ -84,6 +84,13 @@
             line-height: 2.25rem;
             /* Center placeholder vertically */
         }
+        .bus-card {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .bus-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+        }
     </style>
 </head>
 
@@ -148,11 +155,39 @@
                   <p><strong>No buses found in the selected route.</strong></p>
                 </div>
                 <div th:unless="${busListIsEmpty}">
-                    <ul th:each="bus:${busList}">
-                        <li th:text="${bus}">Bus1</li>
-                    </ul>
-                    <div></div>
+                    <div th:each="bus:${busList}" class="bus-card mb-3 p-3 bg-white rounded shadow-sm">
+                        <div class="d-flex flex-column">
+                            <div class="d-flex justify-content-between">
+                                <h5 th:text="${bus.busName}">ABC Travels</h5>
+                                <span class="badge bg-primary" th:text="${bus.busType}">AC Sleeper_2_1</span>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-4">
+                                    <p><strong>From:</strong> <span th:text="${bus.source}">Location A</span></p>
+                                    <p><strong>Departure:</strong> <span th:text="${bus.sourceDepartureDate}">31.12.1999</span> 
+                                       at <span th:text="${bus.sourceDepartureTime}">8:00 p.m.</span></p>
+                                    <p><strong>Duration:</strong> <span th:text="${bus.duration}">12h 0m</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>To:</strong> <span th:text="${bus.destination}">Location B</span></p>
+                                    <p><strong>Arrival:</strong> <span th:text="${bus.destinationArrivalDate}">01.01.2000</span> 
+                                       at <span th:text="${bus.destinationArrivalTime}">8:00 a.m.</span></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Available Seats:</strong> <span th:text="${bus.availableSeats}">0</span></p>
+                                    <p><strong>Base Fare:</strong> ₹<span th:text="${bus.baseFare}">900</span></p>
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-primary mt-2" 
+                                        th:onclick="|window.location.href='@{/bus/seats(busId=${bus.busId}, from=${bus.source}, sourceDepartureDate=${bus.sourceDepartureDate}, sourceDepartureTime=${bus.sourceDepartureTime}, to=${bus.destination})}'|">
+                                            View seats
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
             </section>
             <br />
         </div>

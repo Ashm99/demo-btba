@@ -53,4 +53,19 @@ public class BusController {
 
         return "bus-search/bus-search-result";
     }
+
+    @GetMapping(value = "/seats")
+    public String renderSeatSelectionPage(
+            @RequestParam String busId,
+            @RequestParam String from,
+            @RequestParam String sourceDepartureDate,
+            @RequestParam String sourceDepartureTime,
+            @RequestParam String to) {
+        System.out.println(busId);
+        System.out.println(from);
+        System.out.println(sourceDepartureDate);
+        System.out.println(sourceDepartureTime);
+        System.out.println(to);
+        return "bus-booking/seat-selection";
+    }
 }

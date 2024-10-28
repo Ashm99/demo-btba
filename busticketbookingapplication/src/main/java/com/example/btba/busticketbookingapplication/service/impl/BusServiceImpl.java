@@ -82,6 +82,7 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
             int availableSeats = this.setAvailableSeats(bus.getId(), bus.getSeatType(), bus.getNoOfRows(), travelDate);
             if (availableSeats > 0) {
                 BusTravelDto busTravelDto = BusTravelDto.builder()
+                        .busId(bus.getId())
                         .busName(bus.getBusName())
                         .busType(this.setBusType(bus.getAirConditioned(), bus.getSeatType()))
                         .availableSeats(availableSeats)
