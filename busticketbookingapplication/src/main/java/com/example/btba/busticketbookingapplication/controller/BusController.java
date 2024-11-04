@@ -2,6 +2,7 @@ package com.example.btba.busticketbookingapplication.controller;
 
 import com.example.btba.busticketbookingapplication.dto.BusDto;
 import com.example.btba.busticketbookingapplication.dto.BusTravelDto;
+import com.example.btba.busticketbookingapplication.model.BusBooking;
 import com.example.btba.busticketbookingapplication.model.Seat;
 import com.example.btba.busticketbookingapplication.service.BusService;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -77,6 +79,7 @@ public class BusController {
         System.out.println(sourceDepartureDate);
         System.out.println(sourceDepartureTime);
         System.out.println(to);
+        busService.initializeBusBookingObject(from, to, sourceDepartureDate, sourceDepartureTime);
         BusDto busDto = busService.getBusById(Long.parseLong(busId));
         List<Seat> seatList = busService.getSeatDetails(busId, sourceDepartureDate);
         System.out.println("seat list: " + seatList);
@@ -112,7 +115,16 @@ public class BusController {
      * @return      The Boarding Point view
      */
     @GetMapping(value = "/boardingPoint")
-    public String renderBoardingPointPage(Model model) {
-        return "bus-booking/boarding-point-selection";
+    public String renderBoardingAndDroppingPointPage(Model model) {
+        BusBooking busBooking = busService.getBoardingAndDroppingSummary();
+        model.addAttribute("busBooking", busBooking);
+        String duration = busService.getBusDuration(LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime()), LocalDateTime.of(busBooking.getDropDate(), busBooking.getDropTime()));
+        model.addAttribute("duration", duration);
+        return "bus-booking/boarding-dropping-point-summary";
+    }
+    @GetMapping(value = "/passengerDetails")
+    @ResponseBody
+    public String renderPassengerDetailsPage() {
+        return "Success";
     }
 }

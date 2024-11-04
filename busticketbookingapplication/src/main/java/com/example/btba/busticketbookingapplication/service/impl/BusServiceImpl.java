@@ -121,7 +121,7 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
                 busTravelDto.setSourceDepartureTime(departureAndArrivalMap.get("departureDateTime").toLocalTime());
                 busTravelDto.setDestinationArrivalDate(departureAndArrivalMap.get("arrivalDateTime").toLocalDate());
                 busTravelDto.setDestinationArrivalTime(departureAndArrivalMap.get("arrivalDateTime").toLocalTime());
-                busTravelDto.setDuration(this.setBusDuration(departureAndArrivalMap.get("departureDateTime"), departureAndArrivalMap.get("arrivalDateTime")));
+                busTravelDto.setDuration(this.getBusDuration(departureAndArrivalMap.get("departureDateTime"), departureAndArrivalMap.get("arrivalDateTime")));
                 busTravelDto.setBaseFare(bus.getPricePerKm() * stopRepo.findDistanceBetweenLocations(passengerStartPoint, passengerEndPoint, bus.getRoute().getId()));
                 busTravelDtoList.add(busTravelDto);
             }
@@ -131,13 +131,14 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
     }
 
     /**
-     * A non-overridden service method to set the duration string between locations for a bus.
+     * A non-overridden service method to get the duration string between locations for a bus.
      *
      * @param departureDateTime LocalDateTime variable having the time of departure,
      * @param arrivalDateTime   LocalDateTime variable having the time of arrival,
      * @return a String value mentioning the duration between the departure and arrival point.
      */
-    private String setBusDuration(LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+    @Override
+    public String getBusDuration(LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
         String s = "";
         Duration duration = Duration.between(departureDateTime, arrivalDateTime);
         if(duration.toDays() > 0) s = s + duration.toDays() + "d ";
@@ -261,6 +262,20 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
         return locations;
     }
 
+    @Override
+    public void initializeBusBookingObject(String from, String to, String sourceDepartureDateString, String sourceDepartureTimeString) {
+        LocalDate sourceDepartureDate = LocalDate.parse(sourceDepartureDateString);
+        LocalTime sourceDepartureTime = LocalTime.parse(sourceDepartureTimeString);
+        busBooking = new BusBooking();
+        busBooking.setCancelled(false);
+        System.out.println("Initialized bus booking object");
+        busBooking.setPickupPoint(from);
+        busBooking.setPickupDate(sourceDepartureDate);
+        busBooking.setPickupTime(sourceDepartureTime);
+        busBooking.setDropPoint(to);
+        System.out.println("Set sourceDeparture date as pickup date of bus booking object.");
+    }
+
     /**
      * A service method to get the seat data of a bus to be shown in the webpage.
      *
@@ -272,11 +287,9 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
     public List<Seat> getSeatDetails(String busIdString, String sourceDepartureDateString) {
         Long busId = Long.parseLong(busIdString);
         LocalDate sourceDepartureDate = LocalDate.parse(sourceDepartureDateString);
-        busBooking = new BusBooking();
-        System.out.println("Initialized bus booking object");
         Bus tempBus = busRepo.findById(busId).orElseThrow(()-> new RuntimeException("Error while fetching bus data."));
         busBooking.setBus(tempBus);
-        System.out.println("set bus details to bus booking object");
+        System.out.println("Set bus details to bus booking object");
         List<Seat> seatList = new ArrayList<>();
         switch (tempBus.getSeatType()){
             case SLEEPER_2_1 -> {
@@ -345,4 +358,18 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
         busBooking.setSeatNumber(seats);
         System.out.println("Set seat numbers to bus booking object.");
     }
+
+    @Override
+    public BusBooking getBoardingAndDroppingSummary() {
+        LocalDateTime pickupDateTime = LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime());
+        int travelTimeInMinutes = this.getTravelTimeBetweenStopsInMinutes(busBooking.getBus().getRoute().getId(), busBooking.getPickupPoint(), busBooking.getDropPoint());
+        LocalDateTime dropDateTime = pickupDateTime.plusMinutes(travelTimeInMinutes);
+        busBooking.setDropDate(dropDateTime.toLocalDate());
+        busBooking.setDropTime(dropDateTime.toLocalTime());
+        Double pricePerTicket = busBooking.getBus().getPricePerKm() * stopRepo.findDistanceBetweenLocations(busBooking.getPickupPoint(), busBooking.getDropPoint(), busBooking.getBus().getRoute().getId());
+        int ticketCount = busBooking.getSeatNumber().split(", ").length;
+        busBooking.setPrice(pricePerTicket * ticketCount);
+        return busBooking;
+    }
+
 }
