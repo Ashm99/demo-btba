@@ -4,12 +4,15 @@ import com.example.btba.busticketbookingapplication.dto.BusDto;
 import com.example.btba.busticketbookingapplication.dto.BusTravelDto;
 import com.example.btba.busticketbookingapplication.mapper.BusMapper;
 import com.example.btba.busticketbookingapplication.model.Bus;
+import com.example.btba.busticketbookingapplication.model.BusBooking;
+import com.example.btba.busticketbookingapplication.model.Seat;
 import com.example.btba.busticketbookingapplication.model.SeatType;
+import com.example.btba.busticketbookingapplication.repo.BusBookingRepo;
 import com.example.btba.busticketbookingapplication.repo.BusRepo;
 import com.example.btba.busticketbookingapplication.repo.RouteRepo;
 import com.example.btba.busticketbookingapplication.repo.StopRepo;
 import com.example.btba.busticketbookingapplication.service.BusService;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -23,23 +26,41 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
-@AllArgsConstructor
-public class BusServiceImpl implements BusService { // 5 non-overridden methods exist
-    // After including the booking Dto, include logic for correcting the available seats inside setAvailableSeats() method.
-    private final BusRepo busRepo;
-    private final RouteRepo routeRepo;
-    private final StopRepo stopRepo;
+public class BusServiceImpl implements BusService { // 7 non-overridden support methods exist
+    // If any problem arises due to passing params from bus-search-result, only send busId and make busTravelDto a global variable.
+    @Autowired
+    private BusRepo busRepo;
+    @Autowired
+    private RouteRepo routeRepo;
+    @Autowired
+    private StopRepo stopRepo;
+    @Autowired
+    private BusBookingRepo busBookingRepo;
+
+    private BusBooking busBooking;
+
+    /**
+     * A service method to get the bus data using the bus id.
+     *
+     * @param busId The id of the bus,
+     * @return      A Bus Dto object.
+     */
+    @Override
+    public BusDto getBusById(long busId) {
+        Bus bus = busRepo.findById(busId).orElseThrow(()->new RuntimeException("Error while fetching Bus data"));
+        return BusMapper.mapToBusDto(bus);
+    }
 
     /**
      * A service method for getting a list of buses for given source and destination locations.
      *
      * @param passengerStartPoint passenger service startpoint,
      * @param passengerEndPoint   passenger service endpoint,
-     * @param travelDate          date of travel,
+     * @param sourceDepartureDate date of travel,
      * @return A list of buses running between given stops.
      */
     @Override
-    public List<BusTravelDto> getBusesBetweenSourceAndDestination(String passengerStartPoint, String passengerEndPoint, LocalDate travelDate) {
+    public List<BusTravelDto> getBusesBetweenSourceAndDestination(String passengerStartPoint, String passengerEndPoint, LocalDate sourceDepartureDate) {
         List<Bus> busList = new ArrayList<>();
         List<BusDto> busDtoList = new ArrayList<>();
 
@@ -50,7 +71,7 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
         // Finding buses on the found routes
         routeIds.forEach( id -> busList.addAll(busRepo.findByRouteId(id)));
 
-        List<BusTravelDto> busTravelDtoList = this.setBusTravelDto(passengerStartPoint, passengerEndPoint, travelDate, busList);
+        List<BusTravelDto> busTravelDtoList = this.setBusTravelDto(passengerStartPoint, passengerEndPoint, sourceDepartureDate, busList);
 
         // Creating Dto list
         AtomicInteger i = new AtomicInteger(0);
@@ -69,17 +90,17 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
     /**
      * A non-overridden service method to set bus traveling details between given source and destination.
      *
-     * @param passengerStartPoint      Source location,
-     * @param passengerEndPoint Destination location,
-     * @param travelDate travel date,
-     * @param busList     List of Buses between given source and destination,
-     * @return A list of Dtos having bus traveling details.
+     * @param passengerStartPoint Source location,
+     * @param passengerEndPoint   Destination location,
+     * @param sourceDepartureDate travel date,
+     * @param busList             List of Buses between given source and destination,
+     * @return                    A list of Dtos having bus traveling details.
      */
-    private List<BusTravelDto> setBusTravelDto(String passengerStartPoint, String passengerEndPoint, LocalDate travelDate, List<Bus> busList) {
+    private List<BusTravelDto> setBusTravelDto(String passengerStartPoint, String passengerEndPoint, LocalDate sourceDepartureDate, List<Bus> busList) {
         System.out.println("Setting busTravelDtoList from BusServiceImpl...");
         List<BusTravelDto> busTravelDtoList = new ArrayList<>();
         busList.forEach(bus -> {
-            int availableSeats = this.setAvailableSeats(bus.getId(), bus.getSeatType(), bus.getNoOfRows(), travelDate);
+            int availableSeats = this.setAvailableSeats(bus.getId(), bus.getSeatType(), bus.getNoOfRows(), sourceDepartureDate);
             if (availableSeats > 0) {
                 BusTravelDto busTravelDto = BusTravelDto.builder()
                         .busId(bus.getId())
@@ -95,7 +116,7 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
                         .duration("0h 0m")
                         .baseFare(0D)
                         .build();
-                Map<String, LocalDateTime> departureAndArrivalMap = this.setDepartureAndArrivalData(bus.getRoute().getId(), bus.getSourceDepartureTime(), travelDate, passengerStartPoint, passengerEndPoint);
+                Map<String, LocalDateTime> departureAndArrivalMap = this.setDepartureAndArrivalData(bus.getRoute().getId(), bus.getSourceDepartureTime(), sourceDepartureDate, passengerStartPoint, passengerEndPoint);
                 busTravelDto.setSourceDepartureDate(departureAndArrivalMap.get("departureDateTime").toLocalDate());
                 busTravelDto.setSourceDepartureTime(departureAndArrivalMap.get("departureDateTime").toLocalTime());
                 busTravelDto.setDestinationArrivalDate(departureAndArrivalMap.get("arrivalDateTime").toLocalDate());
@@ -138,21 +159,26 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
     /**
      * A non-overridden service method to get the number of available seats in a bus.
      *
-     * @param busId    Bus id in the database,
-     * @param seatType type of bus seat,
-     * @param noOfRows no. of rows in the bus,
-     * @param date travel date,
-     * @return the number of available seats.
+     * @param busId               Bus id in the database,
+     * @param seatType            type of bus seat,
+     * @param noOfRows            no. of rows in the bus,
+     * @param sourceDepartureDate travel date,
+     * @return                    the number of available seats.
      */
-    private int setAvailableSeats(Long busId, SeatType seatType, int noOfRows, LocalDate date)  {
+    private int setAvailableSeats(Long busId, SeatType seatType, int noOfRows, LocalDate sourceDepartureDate)  {
         int noOfColumns = switch (seatType) {
             case SLEEPER_2_1 -> 6; // 3 from each upper and lower deck
             case SEMI_SLEEPER_2_2 -> 4;
             default -> 5;
         };
         int totalSeats = noOfRows * noOfColumns;
-        int bookedSeats = 0; // Add logic to include the booked seats
-        return (totalSeats-bookedSeats);
+        List<BusBooking> busBookingList = busBookingRepo.findAllByBusIdAndPickupDateAndIsCancelled(busId, sourceDepartureDate, false);
+        AtomicInteger bookedSeats = new AtomicInteger();
+        busBookingList.forEach(booking -> {
+            String seatNumber = booking.getSeatNumber();
+            bookedSeats.addAndGet(seatNumber.split(", ").length);
+        });
+        return (totalSeats- bookedSeats.get());
     }
 
     /**
@@ -160,14 +186,14 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
      *
      * @param routeId                route id,
      * @param busSourceDepartureTime departure time of the bus from its service starting point,
-     * @param travelDate             date of travel
+     * @param sourceDepartureDate    date of travel
      * @param passengerStartPoint    source location for passenger
      * @param passengerEndPoint      destination location for passenger
      * @return a map with departure and arrival data for the travel.
      */
     private Map<String, LocalDateTime> setDepartureAndArrivalData(Long routeId,
                                                                   LocalTime busSourceDepartureTime,
-                                                                  LocalDate travelDate,
+                                                                  LocalDate sourceDepartureDate,
                                                                   String passengerStartPoint,
                                                                   String passengerEndPoint) {
         Map<String, LocalDateTime> map = new HashMap<>();
@@ -177,7 +203,7 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
         System.out.println("busSourceDepartureLocation: " + busSourceDepartureLocation);
 
         // Defining departure date and time from passenger start point
-        LocalDateTime departureDateTime = LocalDateTime.of(travelDate, busSourceDepartureTime);
+        LocalDateTime departureDateTime = LocalDateTime.of(sourceDepartureDate, busSourceDepartureTime);
         int travelTimeInMinutes = 0;
         if(!busSourceDepartureLocation.equals(passengerStartPoint)){
             travelTimeInMinutes = this.getTravelTimeBetweenStopsInMinutes(routeId, busSourceDepartureLocation, passengerStartPoint);
@@ -233,5 +259,90 @@ public class BusServiceImpl implements BusService { // 5 non-overridden methods 
             return List.of("No locations found.");
         }
         return locations;
+    }
+
+    /**
+     * A service method to get the seat data of a bus to be shown in the webpage.
+     *
+     * @param busIdString               The id of the bus as a String,
+     * @param sourceDepartureDateString Departure date of the bus as String,
+     * @return                          A list of seats with their seat number and boolean value mentioning if the seat is booked or not.
+     */
+    @Override
+    public List<Seat> getSeatDetails(String busIdString, String sourceDepartureDateString) {
+        Long busId = Long.parseLong(busIdString);
+        LocalDate sourceDepartureDate = LocalDate.parse(sourceDepartureDateString);
+        busBooking = new BusBooking();
+        System.out.println("Initialized bus booking object");
+        Bus tempBus = busRepo.findById(busId).orElseThrow(()-> new RuntimeException("Error while fetching bus data."));
+        busBooking.setBus(tempBus);
+        System.out.println("set bus details to bus booking object");
+        List<Seat> seatList = new ArrayList<>();
+        switch (tempBus.getSeatType()){
+            case SLEEPER_2_1 -> {
+                createSeatList(tempBus.getNoOfRows(), seatList, "U", "A");
+                createSeatList(tempBus.getNoOfRows(), seatList, "U", "B");
+                createSeatList(tempBus.getNoOfRows(), seatList, "U", "C");
+                createSeatList(tempBus.getNoOfRows(), seatList, "L", "A");
+                createSeatList(tempBus.getNoOfRows(), seatList, "L", "B");
+                createSeatList(tempBus.getNoOfRows(), seatList, "L", "C");
+            }
+            case SEMI_SLEEPER_2_2 -> {
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "A");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "B");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "C");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "D");
+            }
+            case SEMI_SLEEPER_3_2 -> {
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "A");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "B");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "C");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "D");
+                createSeatList(tempBus.getNoOfRows(), seatList, "", "E");
+            }
+        }
+        System.out.println("seat list: " + seatList);
+        List<BusBooking> busBookingList = busBookingRepo.findAllByBusIdAndPickupDateAndIsCancelled(busId, sourceDepartureDate, false);
+        seatList.forEach(seat -> {
+            busBookingList.forEach(temp ->{
+                if(temp.getSeatNumber().contains(seat.getSeatNumber())) seat.setBooked(true);
+            });
+        });
+        System.out.println("BusBookingList: " + busBookingList);
+        return seatList;
+    }
+
+    /**
+     * A non-overridden service method to create a list of seats for the getSeatDetails() method.
+     *
+     * @param noOfRows No. of rows in a bus,
+     * @param seatList List of seats where the created seats are to be added,
+     * @param prefix   Prefix String to be added to seat number,
+     * @param suffix   Suffix String to be added to seat number.
+     */
+    private static void createSeatList(int noOfRows, List<Seat> seatList, String prefix, String suffix) {
+        for(int i = 1; i <= noOfRows; i++){
+            String temp = prefix + i + suffix;
+            Seat seat = new Seat(temp, false);
+            seatList.add(seat);
+        }
+    }
+
+    /**
+     * A service method to save the selected seats from the controller to the bus booking object. Data will not immediately be saved to the database.
+     * Once the bus booking object is completely filled during the booking process, it'll then be saved to db.
+     *
+     * @param seatNumbers A list of seat numbers selected
+     */
+    @Override
+    public void saveSeatNumbersToBusBookingObject(List<String> seatNumbers) {
+        String seats = seatNumbers.get(0);
+        int n = seatNumbers.size();
+        for(int i = 1; i < n; i++) {
+            seats += ", " + seatNumbers.get(i);
+        }
+        System.out.println(seats);
+        busBooking.setSeatNumber(seats);
+        System.out.println("Set seat numbers to bus booking object.");
     }
 }

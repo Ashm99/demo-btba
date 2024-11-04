@@ -159,7 +159,7 @@
                         <div class="d-flex flex-column">
                             <div class="d-flex justify-content-between">
                                 <h5 th:text="${bus.busName}">ABC Travels</h5>
-                                <span class="badge bg-primary" th:text="${bus.busType}">AC Sleeper_2_1</span>
+                                <span class="badge bg-info" th:text="${bus.busType}">AC Sleeper_2_1</span>
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-4">
@@ -178,7 +178,7 @@
                                     <p><strong>Base Fare:</strong> ₹<span th:text="${bus.baseFare}">900</span></p>
                                     <button 
                                         type="button" 
-                                        class="btn btn-primary mt-2" 
+                                        class="btn btn-sm btn-primary mt-2" 
                                         th:onclick="|window.location.href='@{/bus/seats(busId=${bus.busId}, from=${bus.source}, sourceDepartureDate=${bus.sourceDepartureDate}, sourceDepartureTime=${bus.sourceDepartureTime}, to=${bus.destination})}'|">
                                             View seats
                                     </button>

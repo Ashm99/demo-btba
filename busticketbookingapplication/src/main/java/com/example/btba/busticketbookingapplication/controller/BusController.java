@@ -1,14 +1,14 @@
 package com.example.btba.busticketbookingapplication.controller;
 
+import com.example.btba.busticketbookingapplication.dto.BusDto;
 import com.example.btba.busticketbookingapplication.dto.BusTravelDto;
+import com.example.btba.busticketbookingapplication.model.Seat;
 import com.example.btba.busticketbookingapplication.service.BusService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,7 +44,6 @@ public class BusController {
             model.addAttribute("busList", fetchedBusList);
         }
 
-
         model.addAttribute("routes", busService.getAllRoutes());
         model.addAttribute("locations", busService.getAllStops());
         model.addAttribute("source", from);
@@ -54,18 +53,66 @@ public class BusController {
         return "bus-search/bus-search-result";
     }
 
+    /**
+     * An api (mvc method) for seat selection while booking a bus ticket.
+     *
+     * @param busId               id of the bus,
+     * @param from                passenger service start point,
+     * @param sourceDepartureDate date of departure from passenger service start point,
+     * @param sourceDepartureTime time of departure from passenger service start point,
+     * @param to                  passenger service end point,
+     * @return                    A webpage with seat arrangements for selection.
+     */
     @GetMapping(value = "/seats")
     public String renderSeatSelectionPage(
             @RequestParam String busId,
             @RequestParam String from,
             @RequestParam String sourceDepartureDate,
             @RequestParam String sourceDepartureTime,
-            @RequestParam String to) {
+            @RequestParam String to,
+            Model model) {
+        System.out.println("Rendering seat selection page...");
         System.out.println(busId);
         System.out.println(from);
         System.out.println(sourceDepartureDate);
         System.out.println(sourceDepartureTime);
         System.out.println(to);
+        BusDto busDto = busService.getBusById(Long.parseLong(busId));
+        List<Seat> seatList = busService.getSeatDetails(busId, sourceDepartureDate);
+        System.out.println("seat list: " + seatList);
+        model.addAttribute("busType", busDto.getSeatType().toString());
+        model.addAttribute("rows", busDto.getNoOfRows());
+        model.addAttribute("busName", busDto.getBusName());
+        model.addAttribute("seatList", seatList);
         return "bus-booking/seat-selection";
+    }
+
+    /**
+     * An api (mvc method) for getting the selected seats from the front-end and save to back-end.
+     *
+     * @param seatNumbers A List of seat Numbers as a String
+     * @param model       A Model object
+     * @return            The Boarding Point view
+     */
+    @PostMapping(value = "/getSeats")
+    public String getSelectedSeats(
+            @RequestBody List<String> seatNumbers,
+            Model model) {
+        System.out.println(seatNumbers);
+        System.out.println("Sending seat list to service layer");
+        busService.saveSeatNumbersToBusBookingObject(seatNumbers);
+        System.out.println("Sent seat list to service layer");
+        return "redirect:/bus/boardingPoint";
+    }
+
+    /**
+     * An api (mvc method) for rendering the boarding point view.
+     *
+     * @param model A Model object
+     * @return      The Boarding Point view
+     */
+    @GetMapping(value = "/boardingPoint")
+    public String renderBoardingPointPage(Model model) {
+        return "bus-booking/boarding-point-selection";
     }
 }
