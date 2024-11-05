@@ -372,4 +372,9 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
         return busBooking;
     }
 
+    @Override
+    public int getPassengerCountFromBusBookingObject() {
+        return busBooking.getSeatNumber().split(", ").length;
+    }
+
 }

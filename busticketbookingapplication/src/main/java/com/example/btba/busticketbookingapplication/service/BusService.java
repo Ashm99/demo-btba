@@ -26,4 +26,6 @@ public interface BusService {
     void saveSeatNumbersToBusBookingObject(List<String> seatNumbers);
 
     BusBooking getBoardingAndDroppingSummary();
+
+    int getPassengerCountFromBusBookingObject();
 }

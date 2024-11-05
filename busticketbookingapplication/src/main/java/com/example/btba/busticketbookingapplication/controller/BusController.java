@@ -122,9 +122,51 @@ public class BusController {
         model.addAttribute("duration", duration);
         return "bus-booking/boarding-dropping-point-summary";
     }
+
+    /**
+     * An api (mvc method) for getting the passenger details for the trip.
+     *
+     * @return
+     */
     @GetMapping(value = "/passengerDetails")
+    public String renderPassengerDetailsPage (Model model) {
+        int passengerCount = busService.getPassengerCountFromBusBookingObject();
+        model.addAttribute("passengerCount", passengerCount);
+        return "bus-booking/passenger-details";
+    }
+
+    @GetMapping(value = "/savePassengerDetails")
     @ResponseBody
-    public String renderPassengerDetailsPage() {
-        return "Success";
+    public String savePassengerDetailsAndRenderPaymentPage(
+            @RequestParam String passenger1Name,
+            @RequestParam String passenger1Age,
+            @RequestParam String passenger1Gender,
+            @RequestParam(required = false) String passenger2Name,
+            @RequestParam(required = false) String passenger2Age,
+            @RequestParam(required = false) String passenger2Gender,
+            @RequestParam(required = false) String passenger3Name,
+            @RequestParam(required = false) String passenger3Age,
+            @RequestParam(required = false) String passenger3Gender,
+            @RequestParam(required = false) String passenger4Name,
+            @RequestParam(required = false) String passenger4Age,
+            @RequestParam(required = false) String passenger4Gender,
+            @RequestParam String passengerEmail,
+            @RequestParam String passengerMobile,
+            Model model) {
+        System.out.print("passenger1: " + passenger1Name);
+        System.out.print(" " + passenger1Age + " ");
+        System.out.println(passenger1Gender);
+        System.out.print("passenger2: " + passenger2Name);
+        System.out.print(" " + passenger2Age + " ");
+        System.out.println(passenger2Gender);
+        System.out.print("passenger3: " + passenger3Name);
+        System.out.print(" " + passenger3Age + " ");
+        System.out.println(passenger3Gender);
+        System.out.print("passenger4: " + passenger4Name);
+        System.out.print(" " + passenger4Age + " ");
+        System.out.println(passenger4Gender);
+        System.out.println("Email: " + passengerEmail);
+        System.out.println("Mobile: " + passengerMobile);
+        return "success";
     }
 }
