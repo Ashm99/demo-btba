@@ -28,4 +28,8 @@ public interface BusService {
     BusBooking getBoardingAndDroppingSummary();
 
     int getPassengerCountFromBusBookingObject();
+
+    BusBooking savePassengerDetailsToBusBookingObject(String passenger1Name, String passenger1Age, String passenger1Gender, String passenger2Name, String passenger2Age, String passenger2Gender, String passenger3Name, String passenger3Age, String passenger3Gender, String passenger4Name, String passenger4Age, String passenger4Gender, String passengerEmail, String passengerMobile);
+
+    boolean ConfirmBooking();
 }

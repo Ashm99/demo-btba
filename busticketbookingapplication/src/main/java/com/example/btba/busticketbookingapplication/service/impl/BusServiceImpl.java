@@ -359,6 +359,11 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
         System.out.println("Set seat numbers to bus booking object.");
     }
 
+    /**
+     * A service method to set dropping details and price to the bus booking global object.
+     *
+     * @return the bus booking object.
+     */
     @Override
     public BusBooking getBoardingAndDroppingSummary() {
         LocalDateTime pickupDateTime = LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime());
@@ -372,9 +377,86 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
         return busBooking;
     }
 
+    /**
+     * A service method to get the passenger count in the current bus booking object.
+     *
+     * @return the number of passengers or seats selected.
+     */
     @Override
     public int getPassengerCountFromBusBookingObject() {
         return busBooking.getSeatNumber().split(", ").length;
+    }
+
+    /**
+     * A service method to set the passenger details to the current bus booking object.
+     *
+     * @param passenger1Name   Name of passenger 1
+     * @param passenger1Age    Age of passenger 1
+     * @param passenger1Gender Gender of passenger 1
+     * @param passenger2Name   Name of passenger2
+     * @param passenger2Age    Age of passenger 2
+     * @param passenger2Gender Gender of passenger 2
+     * @param passenger3Name   Name of passenger 3
+     * @param passenger3Age    Age of passenger 3
+     * @param passenger3Gender Gender of passenger 3
+     * @param passenger4Name   Name of passenger 4
+     * @param passenger4Age    Age of passenger 4
+     * @param passenger4Gender Gender of passenger 4
+     * @param passengerEmail   Passenger email id for booking
+     * @param passengerMobile  Passenger mobile for booking
+     * @return the current bus booking object.
+     */
+    @Override
+    public BusBooking savePassengerDetailsToBusBookingObject(
+            String passenger1Name, String passenger1Age, String passenger1Gender,
+            String passenger2Name, String passenger2Age, String passenger2Gender,
+            String passenger3Name, String passenger3Age, String passenger3Gender,
+            String passenger4Name, String passenger4Age, String passenger4Gender,
+            String passengerEmail, String passengerMobile) {
+        busBooking.setPassenger1Name(passenger1Name);
+        busBooking.setPassenger1Age(Integer.parseInt(passenger1Age));
+        busBooking.setPassenger1Gender(passenger1Gender);
+        busBooking.setPassengerEmail(passengerEmail);
+        busBooking.setPassengerMobile(passengerMobile);
+        if(passenger2Name != null) {
+            busBooking.setPassenger2Name(passenger2Name);
+            busBooking.setPassenger2Age(Integer.parseInt(passenger2Age));
+            busBooking.setPassenger2Gender(passenger2Gender);
+        }
+
+        if(passenger3Name != null) {
+            busBooking.setPassenger3Name(passenger3Name);
+            busBooking.setPassenger3Age(Integer.parseInt(passenger3Age));
+            busBooking.setPassenger3Gender(passenger3Gender);
+        }
+
+        if(passenger4Name != null) {
+            busBooking.setPassenger4Name(passenger4Name);
+            busBooking.setPassenger4Age(Integer.parseInt(passenger4Age));
+            busBooking.setPassenger4Gender(passenger4Gender);
+        }
+        System.out.println("set passenger details to bus booking object");
+        System.out.println(busBooking);
+//        busBooking.setBookedBy(user);
+        return busBooking;
+    }
+
+    /**
+     * A service method to save the bus booking object and confirm the booking.
+     *
+     * @return a boolean value based on the outcome.
+     */
+    @Override
+    public boolean ConfirmBooking() {
+        busBooking.setBookedAt(LocalDateTime.now());
+        try{
+            BusBooking savedBusBooking = busBookingRepo.save(busBooking);
+        } catch (Exception e) {
+            System.err.println("Error while booking!");
+            System.err.println(e.getStackTrace());
+            return false;
+        }
+        return true;
     }
 
 }

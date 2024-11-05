@@ -135,38 +135,70 @@ public class BusController {
         return "bus-booking/passenger-details";
     }
 
+    /**
+     * An api (mvc method) to get incoming passenger details, send it to service layer and render the Journey-summary view to check and proceed with booking.
+     *
+     * @param passenger1Name   Name of passenger 1
+     * @param passenger1Age    Age of passenger 1
+     * @param passenger1Gender Gender of passenger 1
+     * @param passenger2Name   Name of passenger2
+     * @param passenger2Age    Age of passenger 2
+     * @param passenger2Gender Gender of passenger 2
+     * @param passenger3Name   Name of passenger 3
+     * @param passenger3Age    Age of passenger 3
+     * @param passenger3Gender Gender of passenger 3
+     * @param passenger4Name   Name of passenger 4
+     * @param passenger4Age    Age of passenger 4
+     * @param passenger4Gender Gender of passenger 4
+     * @param passengerEmail   Passenger email id for booking
+     * @param passengerMobile  Passenger mobile for booking
+     * @param model            A Model interface object
+     * @param authentication   An Authentication interface object
+     * @return                 A view rendering the journey summary.
+     */
     @GetMapping(value = "/savePassengerDetails")
-    @ResponseBody
     public String savePassengerDetailsAndRenderPaymentPage(
-            @RequestParam String passenger1Name,
-            @RequestParam String passenger1Age,
-            @RequestParam String passenger1Gender,
-            @RequestParam(required = false) String passenger2Name,
-            @RequestParam(required = false) String passenger2Age,
-            @RequestParam(required = false) String passenger2Gender,
-            @RequestParam(required = false) String passenger3Name,
-            @RequestParam(required = false) String passenger3Age,
-            @RequestParam(required = false) String passenger3Gender,
-            @RequestParam(required = false) String passenger4Name,
-            @RequestParam(required = false) String passenger4Age,
-            @RequestParam(required = false) String passenger4Gender,
+            @RequestParam String passenger1Name, @RequestParam String passenger1Age, @RequestParam String passenger1Gender,
+            @RequestParam(required = false) String passenger2Name, @RequestParam(required = false) String passenger2Age, @RequestParam(required = false) String passenger2Gender,
+            @RequestParam(required = false) String passenger3Name, @RequestParam(required = false) String passenger3Age, @RequestParam(required = false) String passenger3Gender,
+            @RequestParam(required = false) String passenger4Name, @RequestParam(required = false) String passenger4Age, @RequestParam(required = false) String passenger4Gender,
             @RequestParam String passengerEmail,
             @RequestParam String passengerMobile,
-            Model model) {
-        System.out.print("passenger1: " + passenger1Name);
-        System.out.print(" " + passenger1Age + " ");
-        System.out.println(passenger1Gender);
-        System.out.print("passenger2: " + passenger2Name);
-        System.out.print(" " + passenger2Age + " ");
-        System.out.println(passenger2Gender);
-        System.out.print("passenger3: " + passenger3Name);
-        System.out.print(" " + passenger3Age + " ");
-        System.out.println(passenger3Gender);
-        System.out.print("passenger4: " + passenger4Name);
-        System.out.print(" " + passenger4Age + " ");
-        System.out.println(passenger4Gender);
+            Model model,
+            Authentication authentication) {
+        System.out.println("passenger1: " + passenger1Name + " " + passenger1Age + " " + passenger1Gender);
+        System.out.println("passenger2: " + passenger2Name + " " + passenger2Age + " " + passenger2Gender);
+        System.out.println("passenger3: " + passenger3Name + " " + passenger3Age + " " + passenger3Gender);
+        System.out.println("passenger4: " + passenger4Name + " " + passenger4Age + " " + passenger4Gender);
         System.out.println("Email: " + passengerEmail);
         System.out.println("Mobile: " + passengerMobile);
-        return "success";
+        BusBooking busBooking = busService.savePassengerDetailsToBusBookingObject(
+                passenger1Name, passenger1Age, passenger1Gender,
+                passenger2Name, passenger2Age, passenger2Gender,
+                passenger3Name, passenger3Age, passenger3Gender,
+                passenger4Name, passenger4Age, passenger4Gender,
+                passengerEmail,
+                passengerMobile
+        );
+        model.addAttribute("busBooking", busBooking);
+        String duration = busService.getBusDuration(LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime()), LocalDateTime.of(busBooking.getDropDate(), busBooking.getDropTime()));
+        model.addAttribute("duration", duration);
+        Double baseFare = busBooking.getPrice();
+        model.addAttribute("baseFare", baseFare);
+        model.addAttribute("GST", baseFare*0.05);
+        model.addAttribute("totalFare", baseFare*1.05);
+        return "bus-booking/journey-summary";
+    }
+
+    /**
+     * An api(mvc) method to get confirmation on booking.
+     *
+     * @return A success or Error view based on the outcome.
+     */
+    @GetMapping(value = "/confirmBooking")
+    public String confirmBooking() {
+        boolean isBooked = busService.ConfirmBooking(); // saves the bus booking object to database.
+        if(isBooked) return "bus-booking/bookingSuccess";
+        return "bus-booking/bookingError";
     }
 }

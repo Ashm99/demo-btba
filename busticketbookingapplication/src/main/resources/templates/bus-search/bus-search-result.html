@@ -175,7 +175,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <p><strong>Available Seats:</strong> <span th:text="${bus.availableSeats}">0</span></p>
-                                    <p><strong>Base Fare:</strong> ₹<span th:text="${bus.baseFare}">900</span></p>
+                                    <p><strong>Base Fare:</strong> ₹<span th:text="${#numbers.formatDecimal(bus.baseFare, 1, 2, 'POINT')}"></span></p>
                                     <button 
                                         type="button" 
                                         class="btn btn-sm btn-primary mt-2" 

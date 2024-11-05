@@ -97,7 +97,7 @@
                             
                             <div class="col-md-6 text-end">
                                 <h5>Price</h5>
-                                <p><strong>Price:</strong> <span th:text="${busBooking.price}"></span></p>
+                                <p><strong>Price:</strong> <span th:text="${#numbers.formatDecimal(busBooking.price, 1, 2, 'POINT')}"></span></p>
                             </div>
                         </div>
                         
