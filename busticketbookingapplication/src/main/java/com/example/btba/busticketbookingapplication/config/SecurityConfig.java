@@ -2,10 +2,8 @@ package com.example.btba.busticketbookingapplication.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,8 +26,8 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/favicon.ico",
                                 "/auth/**"
-                                ,"/passenger/**"
-                                ,"/bus/**"
+//                                ,"/passenger/**"
+//                                ,"/bus/**"
                         ).permitAll() // Allow access to above urls
                         .anyRequest().authenticated()
                 )
@@ -39,6 +37,7 @@ public class SecurityConfig {
                         .loginPage("/auth/login")
                         // The controller method that renders the html page should have this endpoint of GET type
                         // Further the same html login page should make a POST request to this same url in order to authenticate/login
+                        .defaultSuccessUrl("/passenger/home")
                         .permitAll()
                 )
 //                .httpBasic(Customizer.withDefaults())
@@ -79,8 +78,8 @@ public class SecurityConfig {
         return new PassengerDetailsService();
     }
 //     Methods for defining a UserDetailsService Bean:
-//     1. Returning a new InMemoryUserDetailsManager as above
-//     2. Returning a custom UserDetailsService class
+//     1. Returning a new InMemoryUserDetailsManager as commented above
+//     2. Returning a custom UserDetailsService class as used above
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -98,8 +97,8 @@ public class SecurityConfig {
         // The database should have a prefix {noop} for the password field.
         return auth;
     }
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
-        return config.getAuthenticationManager();
-    }
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+//        return config.getAuthenticationManager();
+//    }
 }

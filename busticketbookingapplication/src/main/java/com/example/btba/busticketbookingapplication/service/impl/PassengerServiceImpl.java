@@ -2,7 +2,6 @@ package com.example.btba.busticketbookingapplication.service.impl;
 
 import com.example.btba.busticketbookingapplication.dto.PassengerDto;
 import com.example.btba.busticketbookingapplication.dto.SavePassengerDto;
-import com.example.btba.busticketbookingapplication.dto.UserCredentialDto;
 import com.example.btba.busticketbookingapplication.mapper.PassengerMapper;
 import com.example.btba.busticketbookingapplication.model.Passenger;
 import com.example.btba.busticketbookingapplication.repo.PassengerRepo;
@@ -10,14 +9,11 @@ import com.example.btba.busticketbookingapplication.repo.RouteRepo;
 import com.example.btba.busticketbookingapplication.repo.StopRepo;
 import com.example.btba.busticketbookingapplication.service.PassengerService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -26,29 +22,43 @@ public class PassengerServiceImpl implements PassengerService {
     private final PassengerRepo passengerRepo;
     private final StopRepo stopRepo;
     private final RouteRepo routeRepo;
-    private final AuthenticationManager authManager;
+//    private final AuthenticationManager authManager;
     private final PasswordEncoder encoder;
 
+//    /**
+//     * A Service method to verify passenger credentials.
+//     *
+//     * @param user Object having username and password for validation.
+//     * @return True if valid user and vice versa.
+//     */
+//    @Override
+//    public boolean verify(UserCredentialDto user) {
+//        try {
+//            Authentication authentication = authManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            user.getUsername(),
+//                            user.getPassword()
+//                    )
+//            );
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            return authentication.isAuthenticated();
+//        } catch(Exception e){
+//            return false;
+//        }
+//    }
+
     /**
-     * A Service method to verify passenger credentials.
+     * A service method to get the first name of the passenger who has logged in.
      *
-     * @param user Object having username and password for validation.
-     * @return True if valid user and vice versa.
+     * @param email email id of the passenger
+     * @return      the first name of the passenger
      */
     @Override
-    public boolean verify(UserCredentialDto user) {
-        try {
-            Authentication authentication = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
-                            user.getPassword()
-                    )
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return authentication.isAuthenticated();
-        } catch(Exception e){
-            return false;
-        }
+    public String getUserFirstnameByUsername(String email) {
+        Passenger fetchedPassenger = passengerRepo.findByEmail(email).orElseThrow(
+                () -> new NoSuchElementException("No passenger present in our database under given email id.: " + email + ".")
+        );
+        return fetchedPassenger.getFirstName();
     }
 
     /**

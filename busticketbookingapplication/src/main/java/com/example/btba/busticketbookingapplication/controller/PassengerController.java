@@ -27,9 +27,9 @@ public class PassengerController {
     @GetMapping(value = "/home")
     public String goHome(Model model, Authentication authentication) {
         System.out.println("Rendering passenger homepage...");
-//        System.out.println("Getting passenger first name...");
-//        String passengerName = passengerService.getUserFirstnameByUsername(authentication.getName());
-//        model.addAttribute("passengerName", passengerName);
+        System.out.println("Getting passenger first name...");
+        String passengerName = passengerService.getUserFirstnameByUsername(authentication.getName());
+        model.addAttribute("passengerName", passengerName);
 //        List<String> routes = List.of(
 //                "Chennai - Madurai",
 //                "Chennai - Coimbatore",

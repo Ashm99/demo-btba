@@ -32,24 +32,24 @@ public class AuthController {
         return "login";
     }
 
-    /**
-     * A mvc method for the login page
-     *
-     * @return the login view.
-     */
-    @PostMapping(value = "/perform_login")
-    public String performLogin(@ModelAttribute UserCredentialDto user) {
-        System.out.println("Validating user data...");
-        System.out.println(user.getUsername());
-        System.out.println(user.getPassword());
-        boolean isAuthenticated = passengerService.verify(user);
-        if (!isAuthenticated) {
-            System.out.println("Not authenticated. Redirecting back to login.");
-            return "redirect:/auth/login?error";
-        }
-        System.out.println("Yes, authenticated. Redirecting to home.");
-        return "redirect:/passenger/home";
-    }
+//    /**
+//     * A mvc method for the login page
+//     *
+//     * @return the login view.
+//     */
+//    @PostMapping(value = "/perform_login")
+//    public String performLogin(@ModelAttribute UserCredentialDto user) {
+//        System.out.println("Validating user data...");
+//        System.out.println(user.getUsername());
+//        System.out.println(user.getPassword());
+//        boolean isAuthenticated = passengerService.verify(user);
+//        if (!isAuthenticated) {
+//            System.out.println("Not authenticated. Redirecting back to login.");
+//            return "redirect:/auth/login?error";
+//        }
+//        System.out.println("Yes, authenticated. Redirecting to home.");
+//        return "redirect:/passenger/home";
+//    }
 
     /**
      * A mvc method for the registration page
