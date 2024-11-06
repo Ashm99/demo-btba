@@ -178,7 +178,8 @@ public class BusController {
                 passenger3Name, passenger3Age, passenger3Gender,
                 passenger4Name, passenger4Age, passenger4Gender,
                 passengerEmail,
-                passengerMobile
+                passengerMobile,
+                authentication.getName()
         );
         model.addAttribute("busBooking", busBooking);
         String duration = busService.getBusDuration(LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime()), LocalDateTime.of(busBooking.getDropDate(), busBooking.getDropTime()));

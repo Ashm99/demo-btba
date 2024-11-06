@@ -404,6 +404,7 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
      * @param passenger4Gender Gender of passenger 4
      * @param passengerEmail   Passenger email id for booking
      * @param passengerMobile  Passenger mobile for booking
+     * @param username         username of the user
      * @return the current bus booking object.
      */
     @Override
@@ -412,7 +413,7 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
             String passenger2Name, String passenger2Age, String passenger2Gender,
             String passenger3Name, String passenger3Age, String passenger3Gender,
             String passenger4Name, String passenger4Age, String passenger4Gender,
-            String passengerEmail, String passengerMobile) {
+            String passengerEmail, String passengerMobile, String username) {
         busBooking.setPassenger1Name(passenger1Name);
         busBooking.setPassenger1Age(Integer.parseInt(passenger1Age));
         busBooking.setPassenger1Gender(passenger1Gender);
@@ -437,7 +438,7 @@ public class BusServiceImpl implements BusService { // 7 non-overridden support 
         }
         System.out.println("set passenger details to bus booking object");
         System.out.println(busBooking);
-//        busBooking.setBookedBy(user);
+        busBooking.setBookedBy(username);
         return busBooking;
     }
 

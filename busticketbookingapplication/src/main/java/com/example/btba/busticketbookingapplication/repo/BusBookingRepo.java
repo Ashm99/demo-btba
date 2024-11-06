@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface BusBookingRepo extends JpaRepository<BusBooking, Long> {
     List<BusBooking> findAllByBusIdAndPickupDateAndIsCancelled(Long busId, LocalDate pickupDate, boolean isCancelled);
-    int countByBusIdAndPickupDateAndIsCancelled(Long busId, LocalDate pickupDate, boolean isCancelled);
+//    int countByBusIdAndPickupDateAndIsCancelled(Long busId, LocalDate pickupDate, boolean isCancelled);
+    List<BusBooking> findAllByBookedBy(String username);
 }
