@@ -29,12 +29,39 @@ public class BookingServiceImpl implements BookingService {
         List<BusBooking> upcomingBookingList = new ArrayList<>();
         List<BusBooking> completedBookingList = new ArrayList<>();
         busBookingList.forEach( busBooking -> {
-            if(!busBooking.isCancelled() && LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime()).isAfter(LocalDateTime.now())) {
-                upcomingBookingList.add(busBooking);
+            LocalDateTime pickupDateTime = LocalDateTime.of(busBooking.getPickupDate(), busBooking.getPickupTime());
+            if(!busBooking.isCancelled() && pickupDateTime.isAfter(LocalDateTime.now())) {
+                if(upcomingBookingList.isEmpty()) {
+                    upcomingBookingList.add(busBooking);
+                }
+                else {
+                    int n = upcomingBookingList.size();
+                    for(int i = 0; i < n; i++) {
+                        if (pickupDateTime.isBefore(LocalDateTime.of(upcomingBookingList.get(i).getPickupDate(), upcomingBookingList.get(i).getPickupTime()))) {
+                            upcomingBookingList.add(i, busBooking);
+                            break;
+                        }
+                    }
+                    if(n == upcomingBookingList.size()) upcomingBookingList.add(busBooking);
+                }
             } else {
-                completedBookingList.add(busBooking);
+                if(completedBookingList.isEmpty()) {
+                    completedBookingList.add(busBooking);
+                }
+                else {
+                    int n = completedBookingList.size();
+                    for (int i = 0; i < n; i++) {
+                        if (pickupDateTime.isAfter(LocalDateTime.of(completedBookingList.get(i).getPickupDate(), completedBookingList.get(i).getPickupTime()))) {
+                            completedBookingList.add(i, busBooking);
+                            break;
+                        }
+                    }
+                    if (n == completedBookingList.size()) completedBookingList.add(busBooking);
+                }
             }
         });
+        System.out.println("Upcoming bookings: " + upcomingBookingList);
+        System.out.println("Completed bookings: " + completedBookingList);
         seperatedBookingList.add(upcomingBookingList);
         seperatedBookingList.add(completedBookingList);
         return seperatedBookingList;

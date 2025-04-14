@@ -94,9 +94,30 @@
                                 <button
                                     type="button"
                                     class="btn btn-sm btn-primary mt-2"
-                                    th:onclick="|window.location.href='@{/booking/bookingList}'|">
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalId">
                                         View details
                                 </button>
+                                <div class="modal fade" 
+                                  id="modalId"
+                                  tabindex="-1"
+                                  aria-labelledby="modalTitle"
+                                  aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h4 class="modal-title" id="modalTitle">Hi</h4>
+                                        <button class="btn btn-close" data-bs-dismiss="modal"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <p>Lorem ipsum dolor sit amet.</p>
+                                      </div>
+                                      <div class="modal-footer">
+                                        Done.
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                               <!-- <div class="col-md-2">
                                 <button
@@ -137,6 +158,9 @@
                                     th:onclick="|window.location.href='@{/booking/bookingList}'|">
                                         View details
                                 </button>
+                              </div>
+                              <div class="col-md-2" th:if="${booking.isCancelled}">
+                                <p class="text-danger mt-2"><strong>Cancelled</strong></p>
                               </div>
                           </div>
                       </div>
